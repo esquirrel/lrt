@@ -121,11 +121,19 @@ class Article
     /**
      * Get status
      *
-     * @return integer
+     * @return string
      */
     public function getStatus()
     {
-        return $this->id;
+        return $this->status;
+    }
+
+    public function getStatusLabel()
+    {
+        $enumStatusArticle = new \Lrt\SiteBundle\Enum\StatusArticleEnum();
+        $data_label = $enumStatusArticle->getData();
+
+        return (isset($data_label[$this->status])) ? $data_label[$this->status] : '';
     }
 
     /**
