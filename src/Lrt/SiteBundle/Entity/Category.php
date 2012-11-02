@@ -29,7 +29,7 @@ class Category {
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="Category", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="Article", mappedBy="category")
      */
     protected $categories;
 

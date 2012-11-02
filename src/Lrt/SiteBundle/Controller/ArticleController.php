@@ -7,7 +7,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\Response;
 use JMS\DiExtraBundle\Annotation as DI;
+use JMS\SecurityExtraBundle\Annotation\Secure;
 use Lrt\SiteBundle\Entity\Article;
 use Lrt\SiteBundle\Form\ArticleHandler;
 use Lrt\SiteBundle\Form\Type\ArticleType;
@@ -44,22 +46,20 @@ class ArticleController extends Controller
      * Finds and displays a Article entity.
      *
      * @Route("/{id}/show", name="article_show")
-     * @Template()
+     * @Template("SiteBundle:Article:show.html.twig")
      */
     public function showAction($id)
     {
         $entity = $this->em->getRepository('SiteBundle:Article')->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Article entity.');
+
+            return new Response('NOT FOUND', 404);
         }
 
-        $deleteForm = $this->createDeleteForm($id);
+        //$deleteForm = $this->createDeleteForm($id);
 
-        return array(
-            'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),
-        );
+        return array('entity' => $entity);
     }
 
     /**
@@ -91,19 +91,27 @@ class ArticleController extends Controller
     {
         $user = $this->sc->getToken()->getUser();
 
-        $article  = new Article();
-        $article->setUser($user);
+        if(is_object($user)) {
 
-        $form = $this->createForm(new ArticleType(), $article);
+            $article  = new Article();
+            $article->setUser($user);
 
-        $formHandler = new ArticleHandler($form, $this->getRequest(), $this->em);
+            $form = $this->createForm(new ArticleType(), $article);
 
-        if($formHandler->process())
-        {
-            return $this->redirect($this->generateUrl('article_show', array('id' => $article->getId())));
+            $formHandler = new ArticleHandler($form, $this->getRequest(), $this->em);
+
+            if($formHandler->process()) {
+
+                return $this->redirect($this->generateUrl('article_show', array('id' => $article->getId())));
+            }
+
+            return array('entity' => $article,'form' => $form->createView());
+
+        } else {
+
+           return new \Symfony\Component\BrowserKit\Response('Vous devez être connecté', 404);
+
         }
-
-        return array('entity' => $article,'form' => $form->createView());
     }
 
     /**
@@ -147,14 +155,13 @@ class ArticleController extends Controller
 
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createForm(new ArticleType(), $entity);
-        $editForm->bind($request);
 
-        if ($editForm->isValid())
-        {
-            $this->em->persist($entity);
-            $this->em->flush();
+        $formHandler = new ArticleHandler($editForm, $this->getRequest(), $this->em);
+
+        if($formHandler->process()) {
 
             return $this->redirect($this->generateUrl('article_edit', array('id' => $id)));
+
         }
 
         return array(

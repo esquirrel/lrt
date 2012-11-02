@@ -2,7 +2,12 @@
 
 namespace Lrt\SiteBundle\Entity;
 
-class Page
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ */
+class Page extends Content
 {
 
 }

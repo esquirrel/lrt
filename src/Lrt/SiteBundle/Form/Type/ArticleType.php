@@ -14,14 +14,19 @@ class ArticleType extends AbstractType
         $statusArticleEnum = new StatusArticleEnum();
 
         $builder
-            ->add('title')
-            ->add('content')
+            ->add('title', 'text', array(
+            'attr' => array(
+                'class' => 'monPlaceholder',
+            )))
+            ->add('content', 'textarea', array('required' => true))
             ->add('status', 'choice', array(
                 'label' => 'Status',
                 'choices' => $statusArticleEnum->getData()))
             ->add('isPublic')
-            ->add('category')
-            ->add('user')
+            ->add('category','entity', array(
+                'class'=>'Lrt\SiteBundle\Entity\Category',
+                'property'=>'name',
+                'label' => 'Rubrique :'))
         ;
     }
 

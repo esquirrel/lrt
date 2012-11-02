@@ -6,6 +6,24 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class VideoControllerTest extends WebTestCase
 {
+    public function testAddVideo() {
+
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/video/new');
+
+        $form = $crawler->selectButton('Create')->form(array(
+            'lrt_sitebundle_videotype[title]'  => 'Test',
+            'lrt_sitebundle_videotype[description]'  => 'Test',
+            'lrt_sitebundle_videotype[vimeoId]' => 12341,
+            'lrt_sitebundle_videotype[isAutoPlay]' => 1,
+            'lrt_sitebundle_videotype[isPublished]' => 1,
+            'lrt_sitebundle_videotype[isPublic]' => 1,
+            'lrt_sitebundle_videotype[isHighlighted]' => 1,
+        ));
+
+        $client->submit($form);
+    }
+
     /*
     public function testCompleteScenario()
     {
